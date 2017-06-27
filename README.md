@@ -1,8 +1,7 @@
-# voidwalker
+# Voidwalker
+<img src="http://i.imgur.com/yfHO418.jpg" align="right" height=250 />
 
-generated using Luminus version "2.9.11.63"
-
-FIXME
+Voidwalker is a simple cms. Write, publish and edit markdown.
 
 ## Prerequisites
 
@@ -17,5 +16,3 @@ To start a web server for the application, run:
     lein run
 
 ## License
-
-Copyright © 2017 FIXME
