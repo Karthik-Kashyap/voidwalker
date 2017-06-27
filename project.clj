@@ -15,6 +15,8 @@
                  [metosin/muuntaja "0.2.1"]
                  [metosin/ring-http-response "0.9.0"]
                  [venantius/accountant "0.2.0"]
+                 [korma "0.4.0"]
+                 [mysql/mysql-connector-java "5.1.6"]
                  [mount "0.1.11"]
                  [org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.562" :scope "provided"]

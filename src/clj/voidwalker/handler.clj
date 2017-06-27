@@ -1,11 +1,12 @@
 (ns voidwalker.handler
   (:require [compojure.core :refer [routes wrap-routes]]
-            [voidwalker.layout :refer [error-page]]
-            [voidwalker.routes.home :refer [home-routes]]
             [compojure.route :as route]
-            [voidwalker.env :refer [defaults]]
             [mount.core :as mount]
-            [voidwalker.middleware :as middleware]))
+            [voidwalker.content.core :refer [content-routes]]
+            [voidwalker.env :refer [defaults]]
+            [voidwalker.layout :refer [error-page]]
+            [voidwalker.middleware :as middleware]
+            [voidwalker.routes.home :refer [home-routes]]))
 
 (mount/defstate init-app
                 :start ((or (:init defaults) identity))
@@ -13,13 +14,15 @@
 
 (def app-routes
   (routes
-    (-> #'home-routes
-        (wrap-routes middleware/wrap-csrf)
-        (wrap-routes middleware/wrap-formats))
-    (route/not-found
-      (:body
-        (error-page {:status 404
-                     :title "page not found"})))))
+   (-> #'content-routes
+       (wrap-routes middleware/wrap-formats))
+   ;; (-> #'home-routes
+   ;;     (wrap-routes middleware/wrap-csrf)
+   ;;     (wrap-routes middleware/wrap-formats))
+   (route/not-found
+    (:body
+     (error-page {:status 404
+                  :title "page not found"})))))
 
 
 (defn app [] (middleware/wrap-base #'app-routes))

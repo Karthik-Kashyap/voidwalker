@@ -1,9 +1,8 @@
 (ns voidwalker.routes.home
-  (:require [voidwalker.layout :as layout]
-            [compojure.core :refer [defroutes GET]]
+  (:require [clojure.java.io :as io]
+            [compojure.core :refer [ANY defroutes GET]]
             [ring.util.http-response :as response]
-            [clojure.java.io :as io]
-            [compojure.core :refer [ANY]]))
+            [voidwalker.layout :as layout]))
 
 (defn home-page []
   (layout/render "home.html"))
