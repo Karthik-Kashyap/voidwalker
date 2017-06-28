@@ -16,9 +16,9 @@
   (routes
    (-> #'content-routes
        (wrap-routes middleware/wrap-formats))
-   ;; (-> #'home-routes
-   ;;     (wrap-routes middleware/wrap-csrf)
-   ;;     (wrap-routes middleware/wrap-formats))
+   (-> #'home-routes
+       (wrap-routes middleware/wrap-csrf)
+       (wrap-routes middleware/wrap-formats))
    (route/not-found
     (:body
      (error-page {:status 404

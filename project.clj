@@ -19,6 +19,7 @@
                  [mysql/mysql-connector-java "5.1.6"]
                  [mount "0.1.11"]
                  [org.clojure/clojure "1.8.0"]
+                 [cljsjs/quill "1.2.5-4"]
                  [org.clojure/clojurescript "1.9.562" :scope "provided"]
                  [org.clojure/tools.cli "0.3.5"]
                  [org.clojure/tools.logging "0.4.0"]
