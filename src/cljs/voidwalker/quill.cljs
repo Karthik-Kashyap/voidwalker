@@ -54,6 +54,9 @@
     [:button {:class "ql-list" :value "bullet"}]]
 
    [:span {:class "ql-formats"}
+    [:button {:class "ql-link"}]]
+
+   [:span {:class "ql-formats"}
     [:button {:class "ql-clean"}]]])
 
 

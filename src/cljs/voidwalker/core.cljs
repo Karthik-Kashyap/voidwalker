@@ -11,6 +11,7 @@
             [accountant.core :as accountant]
             [cljsjs.quill]
             [voidwalker.quill :as q]
+            [clojure.core.async :as async]
             [voidwalker.subscriptions])
   (:import goog.History))
 
@@ -20,22 +21,40 @@
     [:div.col-md-12
      [:img {:src (str js/context "/img/warning_clojure.png")}]]]])
 
-(defn editor []
-  [:div [q/editor
-         {:id "my-quill-editor-component-id"
-          :content "welcome to reagent-quill!"
-          :selection nil
-          ;; :on-change-fn #(if (= % "user")
-          ;;                  (println (str "text changed: " %2)))
-          }]])
+(defn get-value [e]
+  (-> e .-target .-value))
+
+(defn input [{:keys [state placeholder default-value type]}]
+  [:div.form-group>input.form-control
+         {:placeholder placeholder
+          :default-value @state
+          :type (or type "text")
+          :on-blur #(reset! state (-> % get-value))}])
 
 (defn add-post []
-  [:div.container
-   [:h1 "New Article"]
-   [:form
-    [:div.form-group>input.form-control {:placeholder "Enter url"}]
-    [:div.form-group>input.form-control {:placeholder "Comma separated keywords/tags"}]
-    [editor]]])
+  (let [url (r/atom "")
+        tags (r/atom "")
+        content (r/atom "")]
+    (fn []
+      [:div.container
+       [:h1 "New Article"]
+       [:form
+        [input {:state url
+                :placeholder "Enter url"}]
+        [input {:placeholder "Comma separated keywords/tags"
+                :state tags}]
+        [:div.form-group [q/editor
+                          {:id "my-quill-editor-component-id"
+                           :content "welcome to reagent-quill!"
+                           :selection nil
+                           :on-change-fn (fn [source data]
+                                           (when (= source "user")
+                                             (reset! content data)))}]]
+        [:button.btn.btn-primary
+         {:on-click (fn [e]
+                      (.preventDefault e)
+                      (println {:url @url :tags @tags :content @content}))}
+         "Save article"]]])))
 
 (defn home-page []
   [:div [add-post]])
