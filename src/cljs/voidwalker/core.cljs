@@ -22,6 +22,14 @@
     [:div.col-md-12
      [:img {:src (str js/context "/img/warning_clojure.png")}]]]])
 
+(defn navbar []
+  [:nav.navbar.navbar-default>div.container-fluid
+   [:div.navbar-header>a.navbar-brand {:href "/"} "Entranceplus"]
+   [:div.nav.navbar-nav
+    [:li {:class (when (= @(rf/subscribe [:page]) :add)
+                   "active")}
+     [:a {:href "/add"} "Add"]]]])
+
 (defn get-value [e]
   (-> e .-target .-value))
 
@@ -60,14 +68,15 @@
          "Save article"]]])))
 
 (defn home-page []
-  [:div [add-post]])
+  [:div.container [:h1 "List of Posts"]])
 
 (def pages
   {:home #'home-page
-   :about #'about-page})
+   :add #'add-post})
 
 (defn page []
   [:div
+   [navbar]
    [(pages @(rf/subscribe [:page]))]])
 
 ;; -------------------------
@@ -76,6 +85,9 @@
 
 (secretary/defroute "/" []
   (rf/dispatch [:set-active-page :home]))
+
+(secretary/defroute "/add" []
+  (rf/dispatch [:set-active-page :add]))
 
 (secretary/defroute "/about" []
   (rf/dispatch [:set-active-page :about]))
