@@ -19,9 +19,14 @@
 (defn add-post [post]
   (k/insert posts (k/values post)))
 
-(defn get-post [url]
-  (first (k/select posts
-                   (k/where {:url url}))))
+(defn get-post
+  ([]
+   (do (println "right branch")
+       (k/select posts)))
+  ([url]
+   (do (println "wrong branch")
+       (first (k/select posts
+                        (k/where {:url url}))))))
 
 (defn send-response [response]
   (-> response
@@ -30,7 +35,10 @@
 (defroutes content-routes
   (context "/article" []
            (GET "/" {{:keys [url]}  :params}
-                (send-response (response/ok (get-post url))))
+                (let [posts (if (nil? url)
+                              (get-post)
+                              (get-post url))]
+                  (send-response (response/ok posts))))
            (POST "/" {post :params}
                  (add-post post)
                  (send-response (response/ok {:msg "Post added"})))))

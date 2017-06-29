@@ -96,6 +96,7 @@
                                  [ring/ring-mock "0.3.0"]
                                  [ring/ring-devel "1.6.1"]
                                  [pjstadig/humane-test-output "0.8.2"]
+                                 [metosin/muuntaja "0.3.1"]
                                  [binaryage/devtools "0.9.4"]
                                  [com.cemerick/piggieback "0.2.2-SNAPSHOT"]
                                  [doo "0.1.7"]
