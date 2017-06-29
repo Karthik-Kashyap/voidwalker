@@ -4,4 +4,4 @@ CREATE TABLE IF NOT EXISTS `posts` (
   `tags` VARCHAR(255),
   `content` VARCHAR(255),
   PRIMARY KEY `pk_id`(`id`)
-) ENGINE = InnoDB;
+);

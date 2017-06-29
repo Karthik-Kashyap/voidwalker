@@ -8,17 +8,6 @@
                                     :password ""
                                     :db "voidwalker"}))
 
-(defn- schema-stmts []
-  (-> "create-schema.sql"
-      clojure.java.io/resource
-      slurp
-      (str/split #"--;;")))
-
-(defn create-schema []
-  (println "Creating schema")
-  (doseq [stmt (schema-stmts)]
-    (k/exec-raw stmt)))
-
 (k/defentity posts)
 
 ;; todo define specs asap

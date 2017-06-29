@@ -15,11 +15,13 @@
                  [metosin/muuntaja "0.2.1"]
                  [metosin/ring-http-response "0.9.0"]
                  [venantius/accountant "0.2.0"]
-                 [korma "0.4.0"]
-                 [mysql/mysql-connector-java "5.1.6"]
+                 [korma "0.4.3"]
+                 [mysql/mysql-connector-java "6.0.5"]
                  [mount "0.1.11"]
+                 [migratus "0.9.7"]
                  [org.clojure/clojure "1.8.0"]
                  [cljsjs/quill "1.2.5-4"]
+                 [day8.re-frame/http-fx "0.1.3"]
                  [org.clojure/core.async "0.3.443"]
                  [org.clojure/clojurescript "1.9.562" :scope "provided"]
                  [org.clojure/tools.cli "0.3.5"]
@@ -45,8 +47,17 @@
   :target-path "target/%s/"
   :main ^:skip-aot voidwalker.core
 
+  :migratus {:store :database
+             :migration-dir "migrations"
+             :db {:classname "com.mysql.jdbc.Driver"
+                  :subprotocol "mysql"
+                  :subname "//localhost/voidwalker"
+                  :user "root"
+                  :password ""}}
+
   :plugins [[lein-cljsbuild "1.1.5"]
-            [lein-immutant "2.1.0"]]
+            [lein-immutant "2.1.0"]
+            [lein-re-frisk "0.4.8"]]
   :clean-targets ^{:protect false}
   [:target-path [:cljsbuild :builds :app :compiler :output-dir] [:cljsbuild :builds :app :compiler :output-to]]
   :figwheel
@@ -81,6 +92,7 @@
    :test          [:project/dev :project/test :profiles/test]
 
    :project/dev  {:dependencies [[prone "1.1.4"]
+                                 [re-frisk-remote "0.4.2"]
                                  [ring/ring-mock "0.3.0"]
                                  [ring/ring-devel "1.6.1"]
                                  [pjstadig/humane-test-output "0.8.2"]
@@ -90,6 +102,7 @@
                                  [figwheel-sidecar "0.5.10"]]
                   :plugins      [[com.jakemccrary/lein-test-refresh "0.19.0"]
                                  [lein-doo "0.1.7"]
+                                 [migratus-lein "0.5.0"]
                                  [lein-figwheel "0.5.10"]
                                  [org.clojure/clojurescript "1.9.562"]]
                   :cljsbuild
@@ -123,8 +136,6 @@
                      {:output-to "target/test.js"
                       :main "voidwalker.doo-runner"
                       :optimizations :whitespace
-                      :pretty-print true}}}}
-                  
-                  }
+                      :pretty-print true}}}}}
    :profiles/dev {}
    :profiles/test {}})

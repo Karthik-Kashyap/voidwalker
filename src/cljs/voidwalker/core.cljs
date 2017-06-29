@@ -12,7 +12,8 @@
             [cljsjs.quill]
             [voidwalker.quill :as q]
             [clojure.core.async :as async]
-            [voidwalker.subscriptions])
+            [voidwalker.subscriptions]
+            [re-frisk-remote.core :refer [enable-re-frisk-remote!]])
   (:import goog.History))
 
 (defn about-page []
@@ -45,7 +46,7 @@
                 :state tags}]
         [:div.form-group [q/editor
                           {:id "my-quill-editor-component-id"
-                           :content "welcome to reagent-quill!"
+                           :content ""
                            :selection nil
                            :on-change-fn (fn [source data]
                                            (when (= source "user")
@@ -53,7 +54,9 @@
         [:button.btn.btn-primary
          {:on-click (fn [e]
                       (.preventDefault e)
-                      (println {:url @url :tags @tags :content @content}))}
+                      (rf/dispatch [:save-article {:url @url
+                                                   :tags @tags
+                                                   :content @content}]))}
          "Save article"]]])))
 
 (defn home-page []
@@ -105,5 +108,6 @@
   (rf/dispatch-sync [:initialize-db])
   (load-interceptors!)
   (fetch-docs!)
+  (enable-re-frisk-remote!)
   (hook-browser-navigation!)
   (mount-components))
