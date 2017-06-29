@@ -20,13 +20,8 @@
   (k/insert posts (k/values post)))
 
 (defn get-post
-  ([]
-   (do (println "right branch")
-       (k/select posts)))
-  ([url]
-   (do (println "wrong branch")
-       (first (k/select posts
-                        (k/where {:url url}))))))
+  ([] (k/select posts))
+  ([url] (first (k/select posts (k/where {:url url})))))
 
 (defn send-response [response]
   (-> response

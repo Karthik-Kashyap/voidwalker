@@ -30,22 +30,3 @@
       (is (and (seq? response)
                (contains-many? (first response) :url :content))))))
 
-
-((app) (request :get "/article"))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
