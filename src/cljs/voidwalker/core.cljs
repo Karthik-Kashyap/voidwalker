@@ -22,6 +22,11 @@
     [:div.col-md-12
      [:img {:src (str js/context "/img/warning_clojure.png")}]]]])
 
+
+(defn get-value [e]
+  (-> e .-target .-value))
+
+
 (defn navbar []
   [:nav.navbar.navbar-default>div.container-fluid
    [:div.navbar-header>a.navbar-brand {:href "/"} "Entranceplus"]
@@ -30,21 +35,45 @@
                    "active")}
      [:a {:href "/add"} "Add"]]]])
 
-(defn get-value [e]
-  (-> e .-target .-value))
 
-(defn input [{:keys [state placeholder default-value type]}]
-  [:div.form-group>input.form-control
-         {:placeholder placeholder
-          :default-value @state
-          :type (or type "text")
-          :on-blur #(reset! state (-> % get-value))}])
+(defn input [{:keys [state placeholder type]}]
+  [:div.form-group [:input.form-control
+                    {:placeholder placeholder
+                     :value @state
+                     :type (or type "text")
+                     :on-change #(reset! state (-> % get-value))}]])
+
+;;;;;;;;;;;;;;;;;;;;;;
+;; new article form ;;
+;;;;;;;;;;;;;;;;;;;;;;
+
+(defn progress-info [data]
+  (let [{:keys [class value]} (case data
+                                :loading {:class "alert-info"
+                                          :value "Saving Boss.."}
+                                :success {:class "alert-success"
+                                          :value "Saved.."}
+                                :error {:class "alert-fail"
+                                        :value "Failed to save"}
+                                {:class "hidden"
+                                 :value "Should not be seen.."})]
+    [:div>div.alert {:class class
+                     :role "alert"} value]))
+
 
 (defn add-post []
   (let [url (r/atom "")
         tags (r/atom "")
-        content (r/atom "")]
+        content (r/atom "")
+        title (r/atom "")
+        post-status (rf/subscribe [:new/post-status])]
     (fn []
+      ;;todo clean this up
+      (when (= @post-status :success)
+        (do (reset! url "")
+            (reset! tags "")
+            (reset! content "")
+            (reset! title "")))
       [:div.container
        [:h1 "New Article"]
        [:form
@@ -52,6 +81,8 @@
                 :placeholder "Enter url"}]
         [input {:placeholder "Comma separated keywords/tags"
                 :state tags}]
+        [input {:placeholder "Enter title"
+                :state title}]
         [:div.form-group [q/editor
                           {:id "my-quill-editor-component-id"
                            :content ""
@@ -59,32 +90,43 @@
                            :on-change-fn (fn [source data]
                                            (when (= source "user")
                                              (reset! content data)))}]]
-        [:button.btn.btn-primary
+        [:div.form-group>button.btn.btn-primary
          {:on-click (fn [e]
                       (.preventDefault e)
                       (rf/dispatch [:save-article {:url @url
                                                    :tags @tags
-                                                   :content @content}]))}
-         "Save article"]]])))
+                                                   :content @content
+                                                   :title @title}]))}
+         "Save article"]
+        [progress-info @post-status]]])))
+
+
+;;;;;;;;;;;;;;;
+;; home-page ;;
+;;;;;;;;;;;;;;;
 
 (defn home-page []
   [:div.container
    [:h1 "List of Posts"]
    (map (fn [article]
-          [:div (:content article)])
+          [:div (:title article)])
         @(rf/subscribe [:articles]))])
+
 
 (def pages
   {:home #'home-page
    :add #'add-post})
+
 
 (defn page []
   [:div
    [navbar]
    [(pages @(rf/subscribe [:page]))]])
 
-;; -------------------------
-;; Routes
+;;;;;;;;;;;;
+;; routes ;;
+;;;;;;;;;;;;
+
 (secretary/set-config! :prefix "")
 
 (secretary/defroute "/" []
@@ -97,6 +139,7 @@
   (rf/dispatch [:set-active-page :about]))
 
 (accountant/configure-navigation! {:nav-handler  (fn [path]
+                                                   (println "path" path)
                                                    (secretary/dispatch! path))
                                    :path-exists? (fn [path]
                                                    (secretary/locate-route path))})
@@ -111,10 +154,12 @@
         (secretary/dispatch! (.-token event))))
     (.setEnabled true)))
 
+(.addEventListener js/document
+                   "DOMContentLoaded"
+                   #(secretary/dispatch! (.. js/document -location -pathname)))
+
 ;; -------------------------
 ;; Initialize app
-(defn fetch-docs! []
-  (GET "/docs" {:handler #(rf/dispatch [:set-docs %])}))
 
 (defn mount-components []
   (rf/clear-subscription-cache!)
@@ -123,7 +168,6 @@
 (defn init! []
   (rf/dispatch-sync [:initialize-db])
   (load-interceptors!)
-  (fetch-docs!)
   (enable-re-frisk-remote!)
   (hook-browser-navigation!)
   (mount-components))

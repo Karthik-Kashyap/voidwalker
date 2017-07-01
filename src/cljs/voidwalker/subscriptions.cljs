@@ -12,6 +12,11 @@
     (:docs db)))
 
 (reg-sub
+ :new/post-status
+ (fn [db _]
+   (:new/post-status db)))
+
+(reg-sub
  :articles
  (fn [db _]
    (:articles db)))
