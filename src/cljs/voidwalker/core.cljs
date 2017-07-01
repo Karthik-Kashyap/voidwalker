@@ -68,7 +68,11 @@
          "Save article"]]])))
 
 (defn home-page []
-  [:div.container [:h1 "List of Posts"]])
+  [:div.container
+   [:h1 "List of Posts"]
+   (map (fn [article]
+          [:div (:content article)])
+        @(rf/subscribe [:articles]))])
 
 (def pages
   {:home #'home-page

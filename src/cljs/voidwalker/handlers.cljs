@@ -22,15 +22,39 @@
   (fn [_ _]
     db/default-db))
 
-(reg-event-db
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; pagination and initial data loading ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(reg-event-fx
   :set-active-page
-  (fn [db [_ page]]
-    (assoc db :page page)))
+  (fn [{:keys [db]} [_ page]]
+    (let [rep {:db (assoc db :page page)}]
+      (if (= :page :home)
+        (merge rep {:dispatch [:get-articles]})
+        rep))))
+
+;;;;;;;;;;;;;;;;;;;;;
+;; listing article ;;
+;;;;;;;;;;;;;;;;;;;;;
+
+(reg-event-fx
+ :get-articles
+ (fn [_ _]
+   {:http-xhrio (new-request {:method :get
+                              :uri "/article"
+                              :on-success [:set-article]})}))
 
 (reg-event-db
-  :set-docs
-  (fn [db [_ docs]]
-    (assoc db :docs docs)))
+ :set-article
+ (fn [db [_ articles]]
+   (println articles)
+   (assoc db :articles articles)))
+
+
+;;;;;;;;;;;;;;;;;;;;
+;; saving article ;;
+;;;;;;;;;;;;;;;;;;;;
 
 (reg-event-fx
  :save-article
