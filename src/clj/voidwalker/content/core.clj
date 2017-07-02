@@ -16,8 +16,15 @@
 ;; (k/insert posts (k/values {:url "/murlocs"
 ;;                            :content "Summon a 1/1 murloc"}))
 
-(defn add-post [post]
-  (k/insert posts (k/values post)))
+(defn add-post [{:keys [url content title tags id] :as post}]
+  (if (nil? id)
+    (k/insert posts (k/values post))
+    (k/update posts
+              (k/set-fields {:url url
+                             :content content
+                             :title title
+                             :tags tags})
+              (k/where {:id id}))))
 
 (defn get-post
   ([] (k/select posts))

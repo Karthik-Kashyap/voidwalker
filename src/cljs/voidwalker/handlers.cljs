@@ -30,12 +30,12 @@
 
 (reg-event-fx
   :set-active-page
-  (fn [{:keys [db]} [_ page]]
-    (let [db (assoc db :page page)]
+  (fn [{:keys [db]} [_ page param]]
+    (let [db (assoc db :page page :page-param param)]
       (case page
         :home {:dispatch [:get-articles]
                :db db}
-        :add {:db (dissoc db :new/post-status)}
+        (:add :edit) {:db (dissoc db :new/post-status)}
         {:db db}))))
 
 ;;;;;;;;;;;;;;;;;;;;;
@@ -53,7 +53,6 @@
 (reg-event-db
  :set-article
  (fn [db [_ articles]]
-   (println articles)
    (assoc db :articles articles)))
 
 

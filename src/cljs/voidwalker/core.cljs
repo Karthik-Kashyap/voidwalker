@@ -60,12 +60,11 @@
     [:div>div.alert {:class class
                      :role "alert"} value]))
 
-
-(defn add-post []
-  (let [url (r/atom "")
-        tags (r/atom "")
-        content (r/atom "")
-        title (r/atom "")
+(defn add-post-form [& {{:keys [url tags content title id]} :data}]
+  (let [url (r/atom url)
+        tags (r/atom tags)
+        content (r/atom content)
+        title (r/atom title)
         post-status (rf/subscribe [:new/post-status])]
     (fn []
       ;;todo clean this up
@@ -85,7 +84,7 @@
                 :state title}]
         [:div.form-group [q/editor
                           {:id "my-quill-editor-component-id"
-                           :content ""
+                           :content @content
                            :selection nil
                            :on-change-fn (fn [source data]
                                            (when (= source "user")
@@ -94,12 +93,17 @@
          {:on-click (fn [e]
                       (.preventDefault e)
                       (rf/dispatch [:save-article {:url @url
+                                                   :id id
                                                    :tags @tags
                                                    :content @content
                                                    :title @title}]))}
          "Save article"]
         [progress-info @post-status]]])))
 
+
+(defn add-post
+  ([] (add-post-form))
+  ([id] (add-post-form :data @(rf/subscribe [:article id]))))
 
 ;;;;;;;;;;;;;;;
 ;; home-page ;;
@@ -108,14 +112,21 @@
 (defn home-page []
   [:div.container
    [:h1 "List of Posts"]
-   (map (fn [article]
-          [:div (:title article)])
+   (map (fn [{:keys [title id]}]
+          [:div
+           {:on-click #(do (rf/dispatch [:set-active-page :edit id])
+                           (accountant/navigate! (str "/edit/" id)))
+            :key id}
+           title])
         @(rf/subscribe [:articles]))])
 
 
-(def pages
-  {:home #'home-page
-   :add #'add-post})
+(defn pages [{:keys [page page-param]}]
+  (fn []
+    (case page
+      :home (home-page)
+      :add (add-post)
+      :edit (add-post page-param))))
 
 
 (defn page []
@@ -138,8 +149,10 @@
 (secretary/defroute "/about" []
   (rf/dispatch [:set-active-page :about]))
 
+(secretary/defroute "/edit/:id" {id :id}
+  (rf/dispatch [:set-active-page :edit id]))
+
 (accountant/configure-navigation! {:nav-handler  (fn [path]
-                                                   (println "path" path)
                                                    (secretary/dispatch! path))
                                    :path-exists? (fn [path]
                                                    (secretary/locate-route path))})
@@ -156,7 +169,8 @@
 
 (.addEventListener js/document
                    "DOMContentLoaded"
-                   #(secretary/dispatch! (.. js/document -location -pathname)))
+                   #(do (println "dom loaded" (.. js/document -location -pathname))
+                        (secretary/dispatch! (.. js/document -location -pathname))))
 
 ;; -------------------------
 ;; Initialize app
