@@ -4,10 +4,6 @@
             [korma.core :as k]
             [ring.util.http-response :as response]))
 
-(korma.db/defdb db (korma.db/mysql {:user "root"
-                                    :password ""
-                                    :db "voidwalker"}))
-
 (k/defentity posts)
 
 ;; todo define specs asap

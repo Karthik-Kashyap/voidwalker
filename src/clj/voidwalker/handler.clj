@@ -2,6 +2,7 @@
   (:require [compojure.core :refer [routes wrap-routes]]
             [compojure.route :as route]
             [mount.core :as mount]
+            [voidwalker.auth :refer [auth-routes]]
             [voidwalker.content.core :refer [content-routes]]
             [voidwalker.env :refer [defaults]]
             [voidwalker.layout :refer [error-page]]
@@ -14,6 +15,8 @@
 
 (def app-routes
   (routes
+   (-> #'auth-routes
+       (wrap-routes middleware/wrap-formats))
    (-> #'content-routes
        (wrap-routes middleware/wrap-formats))
    (-> #'home-routes
